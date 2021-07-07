@@ -112,6 +112,7 @@ class _CameraDialogState extends State<CameraDialog> {
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(
                         backgroundColor: Colors.grey[700],
+                        shape: BeveledRectangleBorder(),
                       ),
                       onPressed: () {
                         onTakePictureButtonPressed(context);

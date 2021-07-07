@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
+      debugShowCheckedModeBanner: false,
       initialRoute: kMainRoute,
       routes: kRoutes,
       onGenerateRoute: (settings) => onGenerateRoute(settings),
