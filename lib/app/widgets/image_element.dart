@@ -4,10 +4,15 @@ import 'package:flutter/material.dart';
 
 class ImageElement extends StatelessWidget {
   const ImageElement(
-      {required this.imagePath, this.width, this.height, this.borderSide});
+      {required this.imagePath,
+      this.width,
+      this.height,
+      this.borderSide,
+      this.radius = 10});
   final String imagePath;
   final double? width;
   final double? height;
+  final double radius;
   final BorderSide? borderSide;
 
   @override
@@ -18,10 +23,10 @@ class ImageElement extends StatelessWidget {
       child: Card(
         elevation: 2,
         shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(radius),
             side: borderSide == null ? BorderSide.none : borderSide!),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(radius),
           child: AspectRatio(
             aspectRatio: 1,
             child: Hero(

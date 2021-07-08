@@ -1,7 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter/services.dart';
+import 'package:tp_final/app/modules/note/data/repository/note_repository.dart';
+import 'package:tp_final/app/modules/note/model/note_model.dart';
+import 'package:tp_final/app/widgets/loading_element.dart';
 import 'package:tp_final/app/widgets/take_picture_dialog.dart';
 import 'package:tp_final/app/widgets/image_element.dart';
 
@@ -11,12 +13,17 @@ class AddNoteForm extends StatefulWidget {
 }
 
 class _AddNoteFormState extends State<AddNoteForm> {
+  final noteRepository = new NoteRepository();
+
   final _titreController = TextEditingController();
   final _contenuController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  // Picture scan
+  // Picture path
   String lastPictureStoredResult = '';
+
+  // Is Loading
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -25,7 +32,23 @@ class _AddNoteFormState extends State<AddNoteForm> {
 
   AutovalidateMode _autoValidateForm = AutovalidateMode.disabled;
 
-  void addMyNote() async {}
+  void addMyNote() async {
+    changeIsLoadingValue();
+
+    await Future.delayed(const Duration(seconds: 5), () => "5");
+
+    Note noteToSave = new Note(
+      title: _titreController.text,
+      dateTime: DateTime.now(),
+      contenu: _contenuController.text,
+      picturePath: lastPictureStoredResult,
+    );
+
+    print(noteToSave.toJson().toString());
+
+    noteRepository.saveNote(noteToSave);
+    changeIsLoadingValue();
+  }
 
   Future _showMyDialog() async {
     XFile? res = await showDialog(
@@ -55,149 +78,159 @@ class _AddNoteFormState extends State<AddNoteForm> {
     });
   }
 
+  changeIsLoadingValue() {
+    setState(() {
+      isLoading = !isLoading;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: BeveledRectangleBorder(
-        side: BorderSide(
-          color: Colors.black,
-          width: 0.5,
-        ),
-      ),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-        child: Form(
-          autovalidateMode: _autoValidateForm,
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 18.0),
-                child: Text(
-                  "NOUVELLE NOTE",
-                  style: TextStyle(
-                    fontStyle: FontStyle.normal,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w100,
-                  ),
-                ),
+    return isLoading
+        ? LoadingElement(
+            height: 300,
+          )
+        : Card(
+            shape: BeveledRectangleBorder(
+              side: BorderSide(
+                color: Colors.black,
+                width: 0.5,
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: TextFormField(
-                  keyboardType: TextInputType.name,
-                  controller: _titreController,
-                  cursorColor: Colors.black,
-                  decoration: InputDecoration(
-                    labelText: 'Titre',
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: const BorderRadius.all(Radius.zero),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                      borderRadius: const BorderRadius.all(Radius.zero),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                      borderRadius: const BorderRadius.all(Radius.zero),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: TextFormField(
-                  keyboardType: TextInputType.multiline,
-                  controller: _contenuController,
-                  cursorColor: Colors.black,
-                  minLines: 3,
-                  maxLines: 6,
-                  decoration: InputDecoration(
-                    labelText: 'Contenu',
-                    labelStyle: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: const BorderRadius.all(Radius.zero),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                      borderRadius: const BorderRadius.all(Radius.zero),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black),
-                      borderRadius: const BorderRadius.all(Radius.zero),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            ),
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+              child: Form(
+                autovalidateMode: _autoValidateForm,
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    OutlinedButton(
-                      style: OutlinedButton.styleFrom(
-                        backgroundColor: Colors.grey.shade700,
-                        shape: BeveledRectangleBorder(),
-                      ),
-                      onPressed: lastPictureStoredResult.isEmpty
-                          ? _showMyDialog
-                          : changeLastPictureStoredResultValue,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 18.0),
                       child: Text(
-                        lastPictureStoredResult.isEmpty
-                            ? 'Ajouter une image'
-                            : 'Supprimer l\'image',
+                        "NOUVELLE NOTE",
                         style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w300,
+                          fontStyle: FontStyle.normal,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w100,
                         ),
                       ),
                     ),
-                    lastPictureStoredResult.isEmpty
-                        ? Container()
-                        : ImageElement(
-                            imagePath: lastPictureStoredResult,
-                            width: 100,
-                            height: 50,
-                            borderSide: BorderSide(
-                                color: Colors.grey.shade700, width: 3.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: TextFormField(
+                        keyboardType: TextInputType.name,
+                        controller: _titreController,
+                        cursorColor: Colors.black,
+                        decoration: InputDecoration(
+                          labelText: 'Titre',
+                          labelStyle: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
                           ),
+                          border: OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(Radius.zero),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                            borderRadius: const BorderRadius.all(Radius.zero),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                            borderRadius: const BorderRadius.all(Radius.zero),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: TextFormField(
+                        keyboardType: TextInputType.multiline,
+                        controller: _contenuController,
+                        cursorColor: Colors.black,
+                        minLines: 3,
+                        maxLines: 6,
+                        decoration: InputDecoration(
+                          labelText: 'Contenu',
+                          labelStyle: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(Radius.zero),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                            borderRadius: const BorderRadius.all(Radius.zero),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.black),
+                            borderRadius: const BorderRadius.all(Radius.zero),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          OutlinedButton(
+                            style: OutlinedButton.styleFrom(
+                              backgroundColor: Colors.grey.shade700,
+                              shape: BeveledRectangleBorder(),
+                            ),
+                            onPressed: lastPictureStoredResult.isEmpty
+                                ? _showMyDialog
+                                : changeLastPictureStoredResultValue,
+                            child: Text(
+                              lastPictureStoredResult.isEmpty
+                                  ? 'Ajouter une image'
+                                  : 'Supprimer l\'image',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w300,
+                              ),
+                            ),
+                          ),
+                          lastPictureStoredResult.isEmpty
+                              ? Container()
+                              : ImageElement(
+                                  imagePath: lastPictureStoredResult,
+                                  width: 100,
+                                  height: 50,
+                                  borderSide: BorderSide(
+                                      color: Colors.grey.shade700, width: 3.0),
+                                ),
+                        ],
+                      ),
+                    ),
+                    Center(
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          backgroundColor: Colors.grey.shade700,
+                          shape: BeveledRectangleBorder(),
+                        ),
+                        onPressed: addMyNote,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Text(
+                              'AJOUTER MA NOTE',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
-              Center(
-                child: OutlinedButton(
-                  style: OutlinedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade700,
-                    shape: BeveledRectangleBorder(),
-                  ),
-                  onPressed: addMyNote,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        'AJOUTER MA NOTE',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
   }
 }
