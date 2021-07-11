@@ -154,6 +154,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 cursorColor: Colors.black,
                                 decoration: InputDecoration(
                                   labelText: 'Titre',
+                                  floatingLabelBehavior:
+                                      FloatingLabelBehavior.always,
                                   labelStyle: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
@@ -186,6 +188,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 maxLines: 6,
                                 decoration: InputDecoration(
                                   labelText: 'Contenu',
+                                  floatingLabelBehavior:
+                                      FloatingLabelBehavior.always,
                                   labelStyle: TextStyle(
                                     color: Colors.black,
                                     fontWeight: FontWeight.bold,
